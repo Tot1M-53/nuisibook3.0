@@ -1,20 +1,20 @@
 export interface BookingData {
-  first_name: string;
-  last_name: string;
-  company?: string;
+  prenom: string;
+  nom: string;
+  societe?: string;
   email: string;
-  phone: string;
-  address: string;
-  city: string;
-  postal_code: string;
-  appointment_date: string;
-  appointment_time: string;
-  treatment_type: string;
+  telephone: string;
+  adresse: string;
+  ville: string;
+  code_postal: string;
+  date_rdv: string;
+  heure_rdv: string;
+  slug: string;
 }
 
-export interface Booking extends BookingData {
+export interface RdvBooking extends BookingData {
   id: string;
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  statut: 'en_attente' | 'confirme' | 'termine' | 'annule';
   created_at: string;
   updated_at: string;
 }

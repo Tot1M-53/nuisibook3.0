@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { BookingData, Booking } from '../types/booking';
+import { BookingData, RdvBooking } from '../types/booking';
 
 export class BookingError extends Error {
   constructor(message: string, public originalError?: unknown) {
@@ -8,31 +8,31 @@ export class BookingError extends Error {
   }
 }
 
-export async function createBooking(bookingData: BookingData): Promise<Booking> {
+export async function createBooking(bookingData: BookingData): Promise<RdvBooking> {
   try {
-    console.log('Creating booking with data:', bookingData);
+    console.log('Création de la réservation avec les données:', bookingData);
 
     const { data, error } = await supabase
-      .from('bookings')
+      .from('rdv_bookings')
       .insert([{
-        first_name: bookingData.first_name,
-        last_name: bookingData.last_name,
-        company: bookingData.company || null,
+        prenom: bookingData.prenom,
+        nom: bookingData.nom,
+        societe: bookingData.societe || null,
         email: bookingData.email,
-        phone: bookingData.phone,
-        address: bookingData.address,
-        city: bookingData.city,
-        postal_code: bookingData.postal_code,
-        appointment_date: bookingData.appointment_date,
-        appointment_time: bookingData.appointment_time,
-        treatment_type: bookingData.treatment_type,
-        status: 'pending'
+        telephone: bookingData.telephone,
+        adresse: bookingData.adresse,
+        ville: bookingData.ville,
+        code_postal: bookingData.code_postal,
+        date_rdv: bookingData.date_rdv,
+        heure_rdv: bookingData.heure_rdv,
+        slug: bookingData.slug,
+        statut: 'en_attente'
       }])
       .select()
       .single();
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error('Erreur Supabase:', error);
       throw new BookingError(`Erreur lors de la création du rendez-vous: ${error.message}`, error);
     }
 
@@ -40,10 +40,10 @@ export async function createBooking(bookingData: BookingData): Promise<Booking> 
       throw new BookingError('Aucune donnée retournée après la création du rendez-vous');
     }
 
-    console.log('Booking created successfully:', data);
-    return data as Booking;
+    console.log('Réservation créée avec succès:', data);
+    return data as RdvBooking;
   } catch (error) {
-    console.error('Error in createBooking:', error);
+    console.error('Erreur dans createBooking:', error);
     
     if (error instanceof BookingError) {
       throw error;
@@ -56,24 +56,24 @@ export async function createBooking(bookingData: BookingData): Promise<Booking> 
   }
 }
 
-export async function getBooking(id: string): Promise<Booking | null> {
+export async function getBooking(id: string): Promise<RdvBooking | null> {
   try {
     const { data, error } = await supabase
-      .from('bookings')
+      .from('rdv_bookings')
       .select('*')
       .eq('id', id)
       .single();
 
     if (error) {
       if (error.code === 'PGRST116') {
-        return null; // No rows found
+        return null; // Aucune ligne trouvée
       }
       throw new BookingError(`Erreur lors de la récupération du rendez-vous: ${error.message}`, error);
     }
 
-    return data as Booking;
+    return data as RdvBooking;
   } catch (error) {
-    console.error('Error in getBooking:', error);
+    console.error('Erreur dans getBooking:', error);
     
     if (error instanceof BookingError) {
       throw error;
@@ -86,10 +86,10 @@ export async function getBooking(id: string): Promise<Booking | null> {
   }
 }
 
-export async function getAllBookings(): Promise<Booking[]> {
+export async function getAllBookings(): Promise<RdvBooking[]> {
   try {
     const { data, error } = await supabase
-      .from('bookings')
+      .from('rdv_bookings')
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -97,9 +97,9 @@ export async function getAllBookings(): Promise<Booking[]> {
       throw new BookingError(`Erreur lors de la récupération des rendez-vous: ${error.message}`, error);
     }
 
-    return (data || []) as Booking[];
+    return (data || []) as RdvBooking[];
   } catch (error) {
-    console.error('Error in getAllBookings:', error);
+    console.error('Erreur dans getAllBookings:', error);
     
     if (error instanceof BookingError) {
       throw error;
@@ -112,11 +112,11 @@ export async function getAllBookings(): Promise<Booking[]> {
   }
 }
 
-export async function updateBookingStatus(id: string, status: Booking['status']): Promise<Booking> {
+export async function updateBookingStatus(id: string, statut: RdvBooking['statut']): Promise<RdvBooking> {
   try {
     const { data, error } = await supabase
-      .from('bookings')
-      .update({ status })
+      .from('rdv_bookings')
+      .update({ statut })
       .eq('id', id)
       .select()
       .single();
@@ -129,9 +129,9 @@ export async function updateBookingStatus(id: string, status: Booking['status'])
       throw new BookingError('Aucune donnée retournée après la mise à jour du statut');
     }
 
-    return data as Booking;
+    return data as RdvBooking;
   } catch (error) {
-    console.error('Error in updateBookingStatus:', error);
+    console.error('Erreur dans updateBookingStatus:', error);
     
     if (error instanceof BookingError) {
       throw error;

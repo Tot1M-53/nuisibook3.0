@@ -3,9 +3,9 @@ import { MapPin } from 'lucide-react';
 
 interface AddressFormProps {
   formData: {
-    address: string;
-    city: string;
-    postal_code: string;
+    adresse: string;
+    ville: string;
+    code_postal: string;
   };
   onInputChange: (field: string, value: string) => void;
   errors: Record<string, string>;
@@ -23,61 +23,61 @@ export default function AddressForm({ formData, onInputChange, errors }: Address
 
       <div className="space-y-4">
         <div>
-          <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="adresse" className="block text-sm font-medium text-gray-700 mb-2">
             Adresse *
           </label>
           <input
             type="text"
-            id="address"
-            value={formData.address}
-            onChange={(e) => onInputChange('address', e.target.value)}
+            id="adresse"
+            value={formData.adresse}
+            onChange={(e) => onInputChange('adresse', e.target.value)}
             className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-xl bg-gray-50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white text-sm sm:text-base ${
-              errors.address ? 'border-red-300 bg-red-50' : 'border-gray-200'
+              errors.adresse ? 'border-red-300 bg-red-50' : 'border-gray-200'
             }`}
             placeholder="123 rue de la République"
           />
-          {errors.address && (
-            <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.address}</p>
+          {errors.adresse && (
+            <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.adresse}</p>
           )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="ville" className="block text-sm font-medium text-gray-700 mb-2">
               Ville *
             </label>
             <input
               type="text"
-              id="city"
-              value={formData.city}
-              onChange={(e) => onInputChange('city', e.target.value)}
+              id="ville"
+              value={formData.ville}
+              onChange={(e) => onInputChange('ville', e.target.value)}
               className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-xl bg-gray-50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white text-sm sm:text-base ${
-                errors.city ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                errors.ville ? 'border-red-300 bg-red-50' : 'border-gray-200'
               }`}
               placeholder="Paris"
             />
-            {errors.city && (
-              <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.city}</p>
+            {errors.ville && (
+              <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.ville}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="postal_code" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="code_postal" className="block text-sm font-medium text-gray-700 mb-2">
               Code postal *
             </label>
             <input
               type="text"
-              id="postal_code"
-              value={formData.postal_code}
-              onChange={(e) => onInputChange('postal_code', e.target.value)}
+              id="code_postal"
+              value={formData.code_postal}
+              onChange={(e) => onInputChange('code_postal', e.target.value)}
               className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-xl bg-gray-50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white text-sm sm:text-base ${
-                errors.postal_code ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                errors.code_postal ? 'border-red-300 bg-red-50' : 'border-gray-200'
               }`}
               placeholder="75001"
               maxLength={5}
             />
-            {errors.postal_code && (
-              <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.postal_code}</p>
+            {errors.code_postal && (
+              <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.code_postal}</p>
             )}
           </div>
         </div>

@@ -3,11 +3,11 @@ import { User, Building2, Phone, Mail } from 'lucide-react';
 
 interface UserInfoFormProps {
   formData: {
-    first_name: string;
-    last_name: string;
-    company: string;
+    prenom: string;
+    nom: string;
+    societe: string;
     email: string;
-    phone: string;
+    telephone: string;
   };
   showCompany: boolean;
   onInputChange: (field: string, value: string) => void;
@@ -32,55 +32,55 @@ export default function UserInfoForm({
       <div className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="prenom" className="block text-sm font-medium text-gray-700 mb-2">
               Prénom *
             </label>
             <input
               type="text"
-              id="first_name"
-              value={formData.first_name}
-              onChange={(e) => onInputChange('first_name', e.target.value)}
+              id="prenom"
+              value={formData.prenom}
+              onChange={(e) => onInputChange('prenom', e.target.value)}
               className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-xl bg-gray-50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white text-sm sm:text-base ${
-                errors.first_name ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                errors.prenom ? 'border-red-300 bg-red-50' : 'border-gray-200'
               }`}
               placeholder="Votre prénom"
             />
-            {errors.first_name && (
-              <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.first_name}</p>
+            {errors.prenom && (
+              <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.prenom}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="nom" className="block text-sm font-medium text-gray-700 mb-2">
               Nom *
             </label>
             <input
               type="text"
-              id="last_name"
-              value={formData.last_name}
-              onChange={(e) => onInputChange('last_name', e.target.value)}
+              id="nom"
+              value={formData.nom}
+              onChange={(e) => onInputChange('nom', e.target.value)}
               className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-xl bg-gray-50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white text-sm sm:text-base ${
-                errors.last_name ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                errors.nom ? 'border-red-300 bg-red-50' : 'border-gray-200'
               }`}
               placeholder="Votre nom"
             />
-            {errors.last_name && (
-              <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.last_name}</p>
+            {errors.nom && (
+              <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.nom}</p>
             )}
           </div>
         </div>
 
         {showCompany && (
           <div>
-            <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="societe" className="block text-sm font-medium text-gray-700 mb-2">
               <Building2 className="w-4 h-4 inline mr-1" />
               Société
             </label>
             <input
               type="text"
-              id="company"
-              value={formData.company}
-              onChange={(e) => onInputChange('company', e.target.value)}
+              id="societe"
+              value={formData.societe}
+              onChange={(e) => onInputChange('societe', e.target.value)}
               className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl bg-gray-50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white text-sm sm:text-base"
               placeholder="Nom de votre société (optionnel)"
             />
@@ -88,7 +88,7 @@ export default function UserInfoForm({
         )}
 
         <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="telephone" className="block text-sm font-medium text-gray-700 mb-2">
             <Phone className="w-4 h-4 inline mr-1" />
             Téléphone *
           </label>
@@ -99,18 +99,18 @@ export default function UserInfoForm({
             </div>
             <input
               type="tel"
-              id="phone"
-              value={formData.phone}
-              onChange={(e) => onInputChange('phone', e.target.value)}
+              id="telephone"
+              value={formData.telephone}
+              onChange={(e) => onInputChange('telephone', e.target.value)}
               className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border rounded-r-xl bg-gray-50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white text-sm sm:text-base ${
-                errors.phone ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                errors.telephone ? 'border-red-300 bg-red-50' : 'border-gray-200'
               }`}
               placeholder="6 12 34 56 78"
               maxLength={10}
             />
           </div>
-          {errors.phone && (
-            <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.phone}</p>
+          {errors.telephone && (
+            <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.telephone}</p>
           )}
         </div>
 

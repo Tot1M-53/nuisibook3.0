@@ -1,27 +1,29 @@
 import { createClient } from '@supabase/supabase-js';
-import { Database } from './database.types';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please check your .env file.');
+  throw new Error('Variables d\'environnement Supabase manquantes. Veuillez vérifier votre fichier .env');
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    persistSession: false // We don't need auth sessions for this booking app
+    persistSession: false // Pas besoin de sessions d'authentification pour cette app de réservation
   }
 });
 
-// Test connection function
+// Fonction de test de connexion
 export async function testConnection() {
   try {
-    const { data, error } = await supabase.from('bookings').select('count').limit(1);
+    const { data, error } = await supabase.from('rdv_bookings').select('count').limit(1);
     if (error) throw error;
-    return { success: true, message: 'Connection successful' };
+    return { success: true, message: 'Connexion réussie' };
   } catch (error) {
-    console.error('Supabase connection test failed:', error);
-    return { success: false, message: error instanceof Error ? error.message : 'Unknown error' };
+    console.error('Test de connexion Supabase échoué:', error);
+    return { 
+      success: false, 
+      message: error instanceof Error ? error.message : 'Erreur inconnue' 
+    };
   }
 }

@@ -19,24 +19,24 @@ import ConnectionStatus from './components/ConnectionStatus';
 export default function App() {
   const { getParam } = useUrlParams();
   
-  // Get pack type from URL slug
+  // Récupérer le type de pack depuis l'URL
   const slug = getParam('slug') || 'rongeur';
   const showCompany = getParam('company') === 'true';
   const selectedPack = PACK_TYPES[slug] || PACK_TYPES['rongeur'];
 
-  // Form state
+  // État du formulaire
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    company: '',
+    prenom: '',
+    nom: '',
+    societe: '',
     email: '',
-    phone: ''
+    telephone: ''
   });
 
   const [addressData, setAddressData] = useState({
-    address: '',
-    city: '',
-    postal_code: ''
+    adresse: '',
+    ville: '',
+    code_postal: ''
   });
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -51,20 +51,20 @@ export default function App() {
 
   const allFormData = { ...formData, ...addressData };
 
-  // Test Supabase connection on mount
+  // Tester la connexion Supabase au montage
   useEffect(() => {
     const checkConnection = async () => {
       const result = await testConnection();
       setConnectionStatus(result.success ? 'connected' : 'error');
       if (!result.success) {
-        console.error('Supabase connection failed:', result.message);
+        console.error('Échec de la connexion Supabase:', result.message);
       }
     };
     
     checkConnection();
   }, []);
 
-  // Validate form on changes, but only show errors for fields that have been interacted with
+  // Valider le formulaire lors des changements, mais ne montrer les erreurs que pour les champs avec lesquels l'utilisateur a interagi
   useEffect(() => {
     const newErrors = validateForm(allFormData);
     const filteredErrors: Record<string, string> = {};
@@ -79,7 +79,7 @@ export default function App() {
   }, [allFormData, hasInteracted]);
 
   const handleInputChange = (field: string, value: string) => {
-    if (['address', 'city', 'postal_code'].includes(field)) {
+    if (['adresse', 'ville', 'code_postal'].includes(field)) {
       setAddressData(prev => ({
         ...prev,
         [field]: value
@@ -91,13 +91,13 @@ export default function App() {
       }));
     }
     
-    // Mark field as interacted
+    // Marquer le champ comme ayant été modifié
     setHasInteracted(prev => ({
       ...prev,
       [field]: true
     }));
 
-    // Clear submit status when user starts editing again
+    // Effacer le statut de soumission quand l'utilisateur recommence à éditer
     if (submitStatus !== 'idle') {
       setSubmitStatus('idle');
       setSubmitMessage('');
@@ -105,8 +105,8 @@ export default function App() {
   };
 
   const handleSubmit = async () => {
-    // Mark all fields as interacted to show validation errors
-    const allFields = ['first_name', 'last_name', 'email', 'phone', 'address', 'city', 'postal_code'];
+    // Marquer tous les champs comme ayant été modifiés pour afficher les erreurs de validation
+    const allFields = ['prenom', 'nom', 'email', 'telephone', 'adresse', 'ville', 'code_postal'];
     const newHasInteracted: Record<string, boolean> = {};
     allFields.forEach(field => {
       newHasInteracted[field] = true;
@@ -130,35 +130,35 @@ export default function App() {
 
     try {
       const bookingData: BookingData = {
-        first_name: allFormData.first_name,
-        last_name: allFormData.last_name,
-        company: allFormData.company || undefined,
+        prenom: allFormData.prenom,
+        nom: allFormData.nom,
+        societe: allFormData.societe || undefined,
         email: allFormData.email,
-        phone: allFormData.phone,
-        address: allFormData.address,
-        city: allFormData.city,
-        postal_code: allFormData.postal_code,
-        appointment_date: format(selectedDate!, 'yyyy-MM-dd'),
-        appointment_time: selectedTime,
-        treatment_type: selectedPack.slug
+        telephone: allFormData.telephone,
+        adresse: allFormData.adresse,
+        ville: allFormData.ville,
+        code_postal: allFormData.code_postal,
+        date_rdv: format(selectedDate!, 'yyyy-MM-dd'),
+        heure_rdv: selectedTime,
+        slug: selectedPack.slug
       };
 
-      console.log('Submitting booking data:', bookingData);
+      console.log('Soumission des données de réservation:', bookingData);
 
-      // Submit to Supabase
+      // Soumettre à Supabase
       const result = await createBooking(bookingData);
-      console.log('Booking created successfully:', result);
+      console.log('Réservation créée avec succès:', result);
 
       setSubmitStatus('success');
       setSubmitMessage(`Votre rendez-vous a été confirmé avec succès ! Référence: ${result.id.slice(0, 8)}`);
 
-      // Redirect to validation page after a short delay
+      // Rediriger vers la page de validation après un court délai
       setTimeout(() => {
         window.location.href = 'https://www.nuisibook.com/validation-du-rdv';
       }, 3000);
 
     } catch (error) {
-      console.error('Error submitting booking:', error);
+      console.error('Erreur lors de la soumission de la réservation:', error);
       
       let errorMessage = 'Une erreur inattendue s\'est produite. Veuillez réessayer.';
       
@@ -178,13 +178,13 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        {/* Connection Status */}
+        {/* Statut de connexion */}
         <ConnectionStatus status={connectionStatus} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
-          {/* Main Content */}
+          {/* Contenu principal */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-            {/* Submit Status Message */}
+            {/* Message de statut de soumission */}
             {submitStatus !== 'idle' && (
               <div className={`rounded-2xl p-4 sm:p-6 border ${
                 submitStatus === 'success' 
@@ -206,10 +206,10 @@ export default function App() {
               </div>
             )}
 
-            {/* Validated Steps */}
+            {/* Étapes validées */}
             <ValidatedSteps selectedPack={selectedPack} />
 
-            {/* User Information Form */}
+            {/* Formulaire d'informations utilisateur */}
             <UserInfoForm
               formData={formData}
               showCompany={showCompany}
@@ -217,20 +217,20 @@ export default function App() {
               errors={errors}
             />
 
-            {/* Address Form */}
+            {/* Formulaire d'adresse */}
             <AddressForm
               formData={addressData}
               onInputChange={handleInputChange}
               errors={errors}
             />
 
-            {/* Date Selection */}
+            {/* Sélection de date */}
             <DateSelector
               selectedDate={selectedDate}
               onDateSelect={setSelectedDate}
             />
 
-            {/* Time Selection */}
+            {/* Sélection d'heure */}
             {selectedDate && (
               <TimeSelector
                 selectedTime={selectedTime}
@@ -239,26 +239,26 @@ export default function App() {
               />
             )}
 
-            {/* Trustpilot Widget */}
+            {/* Widget Trustpilot */}
             <TrustpilotWidget />
 
-            {/* Company Info */}
+            {/* Informations sur l'entreprise */}
             <CompanyInfo />
 
-            {/* Mobile Summary (collapsible) */}
+            {/* Résumé mobile (pliable) */}
             <div className="lg:hidden">
               <BookingSummary
                 selectedPack={selectedPack}
                 selectedDate={selectedDate}
                 selectedTime={selectedTime}
-                address={addressData.address}
-                city={addressData.city}
+                address={addressData.adresse}
+                city={addressData.ville}
                 isCollapsed={summaryCollapsed}
                 onToggleCollapse={() => setSummaryCollapsed(!summaryCollapsed)}
               />
             </div>
 
-            {/* Confirmation Button - Mobile */}
+            {/* Bouton de confirmation - Mobile */}
             <div className="lg:hidden pb-4">
               <button
                 onClick={handleSubmit}
@@ -283,18 +283,18 @@ export default function App() {
             </div>
           </div>
 
-          {/* Sidebar - Desktop */}
+          {/* Barre latérale - Desktop */}
           <div className="hidden lg:block space-y-6">
             <div className="sticky top-8 space-y-6">
               <BookingSummary
                 selectedPack={selectedPack}
                 selectedDate={selectedDate}
                 selectedTime={selectedTime}
-                address={addressData.address}
-                city={addressData.city}
+                address={addressData.adresse}
+                city={addressData.ville}
               />
 
-              {/* Confirmation Button - Desktop */}
+              {/* Bouton de confirmation - Desktop */}
               <button
                 onClick={handleSubmit}
                 disabled={!isValid || isSubmitting || connectionStatus !== 'connected'}
