@@ -1,15 +1,22 @@
 export interface BookingData {
-  prenom: string;
-  nom: string;
-  societe?: string;
+  first_name: string;
+  last_name: string;
+  company?: string;
   email: string;
-  telephone: string;
-  adresse: string;
-  ville: string;
-  code_postal: string;
-  date_rdv: string;
-  heure_rdv: string;
-  slug: string;
+  phone: string;
+  address: string;
+  city: string;
+  postal_code: string;
+  appointment_date: string;
+  appointment_time: string;
+  treatment_type: string;
+}
+
+export interface Booking extends BookingData {
+  id: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  created_at: string;
+  updated_at: string;
 }
 
 export interface PackInfo {

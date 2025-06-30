@@ -1,23 +1,23 @@
 export interface FormErrors {
-  prenom?: string;
-  nom?: string;
+  first_name?: string;
+  last_name?: string;
   email?: string;
-  telephone?: string;
-  adresse?: string;
-  ville?: string;
-  code_postal?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postal_code?: string;
 }
 
 export function validateForm(formData: any): FormErrors {
   const errors: FormErrors = {};
 
   // Required fields validation
-  if (!formData.prenom?.trim()) {
-    errors.prenom = 'Le prénom est requis';
+  if (!formData.first_name?.trim()) {
+    errors.first_name = 'Le prénom est requis';
   }
 
-  if (!formData.nom?.trim()) {
-    errors.nom = 'Le nom est requis';
+  if (!formData.last_name?.trim()) {
+    errors.last_name = 'Le nom est requis';
   }
 
   if (!formData.email?.trim()) {
@@ -26,24 +26,24 @@ export function validateForm(formData: any): FormErrors {
     errors.email = 'Format d\'email invalide';
   }
 
-  if (!formData.telephone?.trim()) {
-    errors.telephone = 'Le téléphone est requis';
-  } else if (!/^[0-9\s\-\+\(\)]{8,}$/.test(formData.telephone.replace(/\s/g, ''))) {
-    errors.telephone = 'Format de téléphone invalide';
+  if (!formData.phone?.trim()) {
+    errors.phone = 'Le téléphone est requis';
+  } else if (!/^[0-9\s\-\+\(\)]{8,}$/.test(formData.phone.replace(/\s/g, ''))) {
+    errors.phone = 'Format de téléphone invalide';
   }
 
-  if (!formData.adresse?.trim()) {
-    errors.adresse = 'L\'adresse est requise';
+  if (!formData.address?.trim()) {
+    errors.address = 'L\'adresse est requise';
   }
 
-  if (!formData.ville?.trim()) {
-    errors.ville = 'La ville est requise';
+  if (!formData.city?.trim()) {
+    errors.city = 'La ville est requise';
   }
 
-  if (!formData.code_postal?.trim()) {
-    errors.code_postal = 'Le code postal est requis';
-  } else if (!/^[0-9]{5}$/.test(formData.code_postal)) {
-    errors.code_postal = 'Le code postal doit contenir 5 chiffres';
+  if (!formData.postal_code?.trim()) {
+    errors.postal_code = 'Le code postal est requis';
+  } else if (!/^[0-9]{5}$/.test(formData.postal_code)) {
+    errors.postal_code = 'Le code postal doit contenir 5 chiffres';
   }
 
   return errors;
