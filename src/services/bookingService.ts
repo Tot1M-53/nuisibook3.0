@@ -12,6 +12,14 @@ export async function createBooking(bookingData: BookingData): Promise<RdvBookin
   try {
     console.log('Création de la réservation avec les données:', bookingData);
 
+    // Vérifier que Supabase est configuré
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('placeholder')) {
+      throw new BookingError('Configuration Supabase manquante. Veuillez configurer vos variables d\'environnement.');
+    }
+
     const { data, error } = await supabase
       .from('rdv_bookings')
       .insert([{

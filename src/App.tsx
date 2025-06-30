@@ -54,81 +54,94 @@ export default function App() {
   // Tester la connexion Supabase au montage
   useEffect(() => {
     const checkConnection = async () => {
-      const result = await testConnection();
-      setConnectionStatus(result.success ? 'connected' : 'error');
-      if (!result.success) {
-        console.error('Échec de la connexion Supabase:', result.message);
+      try {
+        const result = await testConnection();
+        setConnectionStatus(result.success ? 'connected' : 'error');
+        if (!result.success) {
+          console.error('Échec de la connexion Supabase:', result.message);
+        }
+      } catch (error) {
+        console.error('Erreur lors du test de connexion:', error);
+        setConnectionStatus('error');
       }
     };
     
     checkConnection();
   }, []);
 
-  // Valider le formulaire lors des changements, mais ne montrer les erreurs que pour les champs avec lesquels l'utilisateur a interagi
+  // Valider le formulaire lors des changements
   useEffect(() => {
-    const newErrors = validateForm(allFormData);
-    const filteredErrors: Record<string, string> = {};
-    
-    Object.keys(newErrors).forEach(key => {
-      if (hasInteracted[key]) {
-        filteredErrors[key] = newErrors[key];
-      }
-    });
-    
-    setErrors(filteredErrors);
+    try {
+      const newErrors = validateForm(allFormData);
+      const filteredErrors: Record<string, string> = {};
+      
+      Object.keys(newErrors).forEach(key => {
+        if (hasInteracted[key]) {
+          filteredErrors[key] = newErrors[key];
+        }
+      });
+      
+      setErrors(filteredErrors);
+    } catch (error) {
+      console.error('Erreur lors de la validation:', error);
+    }
   }, [allFormData, hasInteracted]);
 
   const handleInputChange = (field: string, value: string) => {
-    if (['adresse', 'ville', 'code_postal'].includes(field)) {
-      setAddressData(prev => ({
+    try {
+      if (['adresse', 'ville', 'code_postal'].includes(field)) {
+        setAddressData(prev => ({
+          ...prev,
+          [field]: value
+        }));
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          [field]: value
+        }));
+      }
+      
+      // Marquer le champ comme ayant été modifié
+      setHasInteracted(prev => ({
         ...prev,
-        [field]: value
+        [field]: true
       }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [field]: value
-      }));
-    }
-    
-    // Marquer le champ comme ayant été modifié
-    setHasInteracted(prev => ({
-      ...prev,
-      [field]: true
-    }));
 
-    // Effacer le statut de soumission quand l'utilisateur recommence à éditer
-    if (submitStatus !== 'idle') {
-      setSubmitStatus('idle');
-      setSubmitMessage('');
+      // Effacer le statut de soumission quand l'utilisateur recommence à éditer
+      if (submitStatus !== 'idle') {
+        setSubmitStatus('idle');
+        setSubmitMessage('');
+      }
+    } catch (error) {
+      console.error('Erreur lors du changement d\'input:', error);
     }
   };
 
   const handleSubmit = async () => {
-    // Marquer tous les champs comme ayant été modifiés pour afficher les erreurs de validation
-    const allFields = ['prenom', 'nom', 'email', 'telephone', 'adresse', 'ville', 'code_postal'];
-    const newHasInteracted: Record<string, boolean> = {};
-    allFields.forEach(field => {
-      newHasInteracted[field] = true;
-    });
-    setHasInteracted(newHasInteracted);
-
-    if (!isFormValid(allFormData, selectedDate, selectedTime)) {
-      setSubmitStatus('error');
-      setSubmitMessage('Veuillez corriger les erreurs dans le formulaire');
-      return;
-    }
-
-    if (connectionStatus !== 'connected') {
-      setSubmitStatus('error');
-      setSubmitMessage('Problème de connexion à la base de données. Veuillez réessayer.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setSubmitStatus('idle');
-
     try {
+      // Marquer tous les champs comme ayant été modifiés
+      const allFields = ['prenom', 'nom', 'email', 'telephone', 'adresse', 'ville', 'code_postal'];
+      const newHasInteracted: Record<string, boolean> = {};
+      allFields.forEach(field => {
+        newHasInteracted[field] = true;
+      });
+      setHasInteracted(newHasInteracted);
+
+      if (!isFormValid(allFormData, selectedDate, selectedTime)) {
+        setSubmitStatus('error');
+        setSubmitMessage('Veuillez corriger les erreurs dans le formulaire');
+        return;
+      }
+
+      if (connectionStatus !== 'connected') {
+        setSubmitStatus('error');
+        setSubmitMessage('Problème de connexion à la base de données. Veuillez vérifier votre configuration Supabase.');
+        return;
+      }
+
+      setIsSubmitting(true);
+      setSubmitStatus('idle');
+
       const bookingData: BookingData = {
         prenom: allFormData.prenom,
         nom: allFormData.nom,
