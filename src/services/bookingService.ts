@@ -20,28 +20,48 @@ export async function createBooking(bookingData: BookingData): Promise<RdvBookin
       throw new BookingError('Configuration Supabase manquante. Veuillez configurer vos variables d\'environnement.');
     }
 
+    // Préparer les données pour l'insertion
+    const insertData = {
+      prenom: bookingData.prenom.trim(),
+      nom: bookingData.nom.trim(),
+      societe: bookingData.societe?.trim() || null,
+      email: bookingData.email.trim().toLowerCase(),
+      telephone: bookingData.telephone.trim(),
+      adresse: bookingData.adresse.trim(),
+      ville: bookingData.ville.trim(),
+      code_postal: bookingData.code_postal.trim(),
+      date_rdv: bookingData.date_rdv,
+      heure_rdv: bookingData.heure_rdv,
+      slug: bookingData.slug,
+      statut: 'en_attente'
+    };
+
+    console.log('Données préparées pour insertion:', insertData);
+
     const { data, error } = await supabase
       .from('rdv_bookings')
-      .insert([{
-        prenom: bookingData.prenom,
-        nom: bookingData.nom,
-        societe: bookingData.societe || null,
-        email: bookingData.email,
-        telephone: bookingData.telephone,
-        adresse: bookingData.adresse,
-        ville: bookingData.ville,
-        code_postal: bookingData.code_postal,
-        date_rdv: bookingData.date_rdv,
-        heure_rdv: bookingData.heure_rdv,
-        slug: bookingData.slug,
-        statut: 'en_attente'
-      }])
+      .insert([insertData])
       .select()
       .single();
 
     if (error) {
-      console.error('Erreur Supabase:', error);
-      throw new BookingError(`Erreur lors de la création du rendez-vous: ${error.message}`, error);
+      console.error('Erreur Supabase détaillée:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      
+      // Messages d'erreur plus spécifiques
+      if (error.code === '42501') {
+        throw new BookingError('Permissions insuffisantes. Veuillez contacter le support.');
+      } else if (error.code === '23505') {
+        throw new BookingError('Cette réservation existe déjà.');
+      } else if (error.message.includes('row-level security')) {
+        throw new BookingError('Problème de sécurité de la base de données. Veuillez réessayer.');
+      } else {
+        throw new BookingError(`Erreur lors de la création du rendez-vous: ${error.message}`);
+      }
     }
 
     if (!data) {
@@ -55,6 +75,11 @@ export async function createBooking(bookingData: BookingData): Promise<RdvBookin
     
     if (error instanceof BookingError) {
       throw error;
+    }
+    
+    // Gestion des erreurs réseau
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new BookingError('Problème de connexion réseau. Veuillez vérifier votre connexion internet.');
     }
     
     throw new BookingError(
