@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { useUrlParams } from './hooks/useUrlParams';
 import { PACK_TYPES, BookingData } from './types/booking';
 import { validateForm, isFormValid } from './utils/validation';
+import { createBooking } from './services/bookingService';
 import ValidatedSteps from './components/ValidatedSteps';
 import UserInfoForm from './components/UserInfoForm';
 import AddressForm from './components/AddressForm';
@@ -102,11 +103,9 @@ export default function App() {
         slug: selectedPack.slug
       };
 
-      // Log the booking data for now (can be replaced with actual API call)
-      console.log('Booking data:', bookingData);
-      
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Submit to Supabase
+      const result = await createBooking(bookingData);
+      console.log('Booking created successfully:', result);
 
       // Redirect to validation page
       window.location.href = 'https://www.nuisibook.com/validation-du-rdv';
