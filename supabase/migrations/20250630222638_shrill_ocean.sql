@@ -29,7 +29,7 @@
     - Index on email for faster lookups
     - Index on appointment_date for scheduling queries
     - Index on status for filtering
-</sql>
+*/
 
 CREATE TABLE IF NOT EXISTS bookings (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
