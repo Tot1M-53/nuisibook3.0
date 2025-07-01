@@ -11,3 +11,8 @@ export interface DiagnosticState {
   content: string | null;
   error: string | null;
 }
+
+export interface DiagnosticPollingState extends DiagnosticState {
+  isPolling: boolean;
+  pollingDuration: number;
+}

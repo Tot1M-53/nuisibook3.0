@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Clock, FileText, X, AlertTriangle } from 'lucide-react';
+import { Loader2, Clock, FileText, X, AlertTriangle, Search } from 'lucide-react';
 import { useDiagnostic } from '../hooks/useDiagnostic';
 import { testDiagnosticTable } from '../services/diagnosticService';
 
@@ -13,8 +13,9 @@ export default function DiagnosticButton({ slug }: DiagnosticButtonProps) {
     isAvailable, 
     content, 
     error, 
-    buttonEnabled, 
-    countdown, 
+    isPolling,
+    pollingDuration,
+    startPolling,
     loadDiagnostic 
   } = useDiagnostic(slug);
 
@@ -37,8 +38,10 @@ export default function DiagnosticButton({ slug }: DiagnosticButtonProps) {
   const handleClick = () => {
     if (content) {
       setShowModal(true);
-    } else {
+    } else if (isAvailable) {
       loadDiagnostic();
+    } else if (!isPolling) {
+      startPolling();
     }
   };
 
@@ -46,36 +49,61 @@ export default function DiagnosticButton({ slug }: DiagnosticButtonProps) {
     if (tableExists === false) {
       return 'Table diagnostic non disponible';
     }
-    if (!buttonEnabled) {
-      return `Disponible dans ${countdown}s`;
+    if (isPolling) {
+      return `Traitement des données en cours... (${pollingDuration}s)`;
     }
     if (isLoading) {
-      return 'Chargement...';
+      return 'Chargement du diagnostic...';
     }
     if (content) {
       return 'Voir le résultat de mon diagnostic';
     }
+    if (isAvailable) {
+      return 'Diagnostic disponible - Cliquer pour voir';
+    }
     if (error) {
       return 'Réessayer';
     }
-    return 'Voir le résultat de mon diagnostic';
+    return 'Vérifier la disponibilité du diagnostic';
   };
 
   const getButtonIcon = () => {
     if (tableExists === false) {
       return <AlertTriangle className="w-4 h-4" />;
     }
-    if (!buttonEnabled) {
-      return <Clock className="w-4 h-4" />;
+    if (isPolling) {
+      return <Search className="w-4 h-4 animate-pulse" />;
     }
     if (isLoading) {
       return <Loader2 className="w-4 h-4 animate-spin" />;
     }
-    return <FileText className="w-4 h-4" />;
+    if (isAvailable || content) {
+      return <FileText className="w-4 h-4" />;
+    }
+    return <Clock className="w-4 h-4" />;
+  };
+
+  const getButtonStyle = () => {
+    if (tableExists === false) {
+      return 'text-red-500 cursor-not-allowed';
+    }
+    if (isPolling) {
+      return 'text-orange-600 cursor-default animate-pulse';
+    }
+    if (isLoading) {
+      return 'text-blue-600 cursor-default';
+    }
+    if (content || isAvailable) {
+      return 'text-green-600 hover:text-green-700 hover:bg-green-50 cursor-pointer';
+    }
+    if (error) {
+      return 'text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer';
+    }
+    return 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 cursor-pointer';
   };
 
   const isButtonDisabled = () => {
-    return tableExists === false || !buttonEnabled || (isLoading && !content);
+    return tableExists === false || isLoading;
   };
 
   return (
@@ -83,28 +111,28 @@ export default function DiagnosticButton({ slug }: DiagnosticButtonProps) {
       <button
         onClick={handleClick}
         disabled={isButtonDisabled()}
-        className={`inline-flex items-center gap-2 font-medium transition-all duration-300 text-sm sm:text-base px-3 py-1.5 rounded-lg ${
-          tableExists === false
-            ? 'text-red-500 cursor-not-allowed'
-            : !buttonEnabled
-            ? 'text-gray-400 cursor-not-allowed'
-            : content
-            ? 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'
-            : isAvailable
-            ? 'text-green-600 hover:text-green-700 hover:bg-green-50'
-            : error
-            ? 'text-red-600 hover:text-red-700 hover:bg-red-50'
-            : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'
-        }`}
+        className={`inline-flex items-center gap-2 font-medium transition-all duration-300 text-sm sm:text-base px-3 py-1.5 rounded-lg ${getButtonStyle()}`}
       >
         {getButtonIcon()}
         {getButtonText()}
       </button>
 
-      {/* Message d'information si la table n'existe pas */}
+      {/* Message d'information détaillé */}
       {tableExists === false && (
         <div className="mt-2 text-xs text-red-600">
           Veuillez connecter Supabase pour activer les diagnostics
+        </div>
+      )}
+
+      {isPolling && (
+        <div className="mt-2 text-xs text-orange-600">
+          Recherche du diagnostic en cours... Le système vérifie automatiquement toutes les 3 secondes.
+        </div>
+      )}
+
+      {isAvailable && !content && !isPolling && (
+        <div className="mt-2 text-xs text-green-600">
+          ✅ Diagnostic disponible ! Cliquez pour le consulter.
         </div>
       )}
 
@@ -140,7 +168,7 @@ export default function DiagnosticButton({ slug }: DiagnosticButtonProps) {
       )}
 
       {/* Message d'erreur */}
-      {error && !showModal && tableExists !== false && (
+      {error && !showModal && tableExists !== false && !isPolling && (
         <div className="mt-2 text-xs text-red-600">
           {error}
         </div>

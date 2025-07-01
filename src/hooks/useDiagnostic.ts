@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DiagnosticState } from '../types/diagnostic';
 import { getDiagnosticResult, checkDiagnosticAvailability } from '../services/diagnosticService';
 
@@ -10,56 +10,66 @@ export function useDiagnostic(slug: string) {
     error: null
   });
 
-  const [buttonEnabled, setButtonEnabled] = useState(false);
-  const [countdown, setCountdown] = useState(15);
+  const [isPolling, setIsPolling] = useState(false);
+  const [pollingStartTime, setPollingStartTime] = useState<number | null>(null);
 
-  // Timer pour activer le bouton après 15 secondes
-  useEffect(() => {
-    if (!slug) return;
+  // Fonction pour vérifier la disponibilité
+  const checkAvailability = useCallback(async () => {
+    if (!slug) return false;
 
-    const timer = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          setButtonEnabled(true);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    // Nettoyer le timer après 15 secondes
-    const enableTimer = setTimeout(() => {
-      setButtonEnabled(true);
-      clearInterval(timer);
-    }, 15000);
-
-    return () => {
-      clearInterval(timer);
-      clearTimeout(enableTimer);
-    };
+    try {
+      const isAvailable = await checkDiagnosticAvailability(slug);
+      setState(prev => ({ ...prev, isAvailable }));
+      return isAvailable;
+    } catch (error) {
+      console.error('Erreur lors de la vérification:', error);
+      setState(prev => ({ 
+        ...prev, 
+        error: error instanceof Error ? error.message : 'Erreur de vérification'
+      }));
+      return false;
+    }
   }, [slug]);
 
-  // Vérifier périodiquement la disponibilité du diagnostic
-  useEffect(() => {
-    if (!slug || !buttonEnabled) return;
+  // Démarrer le polling pour vérifier la disponibilité
+  const startPolling = useCallback(() => {
+    if (!slug || isPolling) return;
 
-    const checkAvailability = async () => {
-      try {
-        const isAvailable = await checkDiagnosticAvailability(slug);
-        setState(prev => ({ ...prev, isAvailable }));
-      } catch (error) {
-        console.error('Erreur lors de la vérification:', error);
+    setIsPolling(true);
+    setPollingStartTime(Date.now());
+    setState(prev => ({ ...prev, error: null }));
+
+    const pollInterval = setInterval(async () => {
+      const isAvailable = await checkAvailability();
+      
+      if (isAvailable) {
+        setIsPolling(false);
+        clearInterval(pollInterval);
       }
+    }, 3000); // Vérifier toutes les 3 secondes
+
+    // Arrêter le polling après 5 minutes maximum
+    const maxPollingTime = setTimeout(() => {
+      setIsPolling(false);
+      clearInterval(pollInterval);
+      setState(prev => ({ 
+        ...prev, 
+        error: 'Délai d\'attente dépassé. Le diagnostic n\'est pas encore disponible.' 
+      }));
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => {
+      clearInterval(pollInterval);
+      clearTimeout(maxPollingTime);
     };
+  }, [slug, isPolling, checkAvailability]);
 
-    // Vérifier immédiatement
-    checkAvailability();
-
-    // Puis vérifier toutes les 5 secondes
-    const interval = setInterval(checkAvailability, 5000);
-
-    return () => clearInterval(interval);
-  }, [slug, buttonEnabled]);
+  // Vérification initiale au montage
+  useEffect(() => {
+    if (slug) {
+      checkAvailability();
+    }
+  }, [slug, checkAvailability]);
 
   const loadDiagnostic = async () => {
     if (!slug) return;
@@ -83,7 +93,7 @@ export function useDiagnostic(slug: string) {
           isLoading: false,
           isAvailable: false,
           content: null,
-          error: 'Diagnostic non disponible pour le moment'
+          error: 'Diagnostic non disponible'
         }));
       }
     } catch (error) {
@@ -95,10 +105,17 @@ export function useDiagnostic(slug: string) {
     }
   };
 
+  // Calculer le temps écoulé depuis le début du polling
+  const getPollingDuration = () => {
+    if (!pollingStartTime) return 0;
+    return Math.floor((Date.now() - pollingStartTime) / 1000);
+  };
+
   return {
     ...state,
-    buttonEnabled,
-    countdown,
+    isPolling,
+    pollingDuration: getPollingDuration(),
+    startPolling,
     loadDiagnostic
   };
 }
