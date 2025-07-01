@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Loader2, Clock, FileText, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Loader2, Clock, FileText, X, AlertTriangle } from 'lucide-react';
 import { useDiagnostic } from '../hooks/useDiagnostic';
+import { testDiagnosticTable } from '../services/diagnosticService';
 
 interface DiagnosticButtonProps {
   slug: string;
@@ -18,6 +19,20 @@ export default function DiagnosticButton({ slug }: DiagnosticButtonProps) {
   } = useDiagnostic(slug);
 
   const [showModal, setShowModal] = useState(false);
+  const [tableExists, setTableExists] = useState<boolean | null>(null);
+
+  // Vérifier si la table existe au montage
+  useEffect(() => {
+    const checkTable = async () => {
+      const result = await testDiagnosticTable();
+      setTableExists(result.exists);
+      if (!result.exists) {
+        console.warn('Table diagnostics_results:', result.message);
+      }
+    };
+    
+    checkTable();
+  }, []);
 
   const handleClick = () => {
     if (content) {
@@ -28,6 +43,9 @@ export default function DiagnosticButton({ slug }: DiagnosticButtonProps) {
   };
 
   const getButtonText = () => {
+    if (tableExists === false) {
+      return 'Table diagnostic non disponible';
+    }
     if (!buttonEnabled) {
       return `Disponible dans ${countdown}s`;
     }
@@ -44,6 +62,9 @@ export default function DiagnosticButton({ slug }: DiagnosticButtonProps) {
   };
 
   const getButtonIcon = () => {
+    if (tableExists === false) {
+      return <AlertTriangle className="w-4 h-4" />;
+    }
     if (!buttonEnabled) {
       return <Clock className="w-4 h-4" />;
     }
@@ -53,13 +74,19 @@ export default function DiagnosticButton({ slug }: DiagnosticButtonProps) {
     return <FileText className="w-4 h-4" />;
   };
 
+  const isButtonDisabled = () => {
+    return tableExists === false || !buttonEnabled || (isLoading && !content);
+  };
+
   return (
     <>
       <button
         onClick={handleClick}
-        disabled={!buttonEnabled || (isLoading && !content)}
+        disabled={isButtonDisabled()}
         className={`inline-flex items-center gap-2 font-medium transition-all duration-300 text-sm sm:text-base px-3 py-1.5 rounded-lg ${
-          !buttonEnabled
+          tableExists === false
+            ? 'text-red-500 cursor-not-allowed'
+            : !buttonEnabled
             ? 'text-gray-400 cursor-not-allowed'
             : content
             ? 'text-blue-600 hover:text-blue-700 hover:bg-blue-50'
@@ -73,6 +100,13 @@ export default function DiagnosticButton({ slug }: DiagnosticButtonProps) {
         {getButtonIcon()}
         {getButtonText()}
       </button>
+
+      {/* Message d'information si la table n'existe pas */}
+      {tableExists === false && (
+        <div className="mt-2 text-xs text-red-600">
+          Veuillez connecter Supabase pour activer les diagnostics
+        </div>
+      )}
 
       {/* Modal pour afficher le diagnostic */}
       {showModal && content && (
@@ -106,7 +140,7 @@ export default function DiagnosticButton({ slug }: DiagnosticButtonProps) {
       )}
 
       {/* Message d'erreur */}
-      {error && !showModal && (
+      {error && !showModal && tableExists !== false && (
         <div className="mt-2 text-xs text-red-600">
           {error}
         </div>
