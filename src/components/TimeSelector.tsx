@@ -18,10 +18,6 @@ export default function TimeSelector({ selectedTime, selectedPack, onTimeSelect 
         <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Quelles sont vos disponibilités ?</h2>
       </div>
 
-      <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">
-        Vous êtes flexible ? Sélectionnez <strong>plusieurs créneaux</strong>.
-      </p>
-
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 mb-4 sm:mb-6">
         {TIME_SLOTS.map((time) => (
           <button
@@ -43,7 +39,7 @@ export default function TimeSelector({ selectedTime, selectedPack, onTimeSelect 
           <strong>Durée de l'intervention :</strong> {selectedPack.duration}
         </p>
         <p className="text-xs sm:text-sm text-gray-700">
-          Le professionnel vous rappellera aujourd'hui pour confirmer les détails du rdv.
+          Le professionnel vous rappellera sous 24h pour confirmer les détails du rendez-vous.
         </p>
       </div>
     </div>

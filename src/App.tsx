@@ -196,7 +196,7 @@ export default function App() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
           {/* Contenu principal */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6 pb-32 lg:pb-0">
             {/* Message de statut de soumission */}
             {submitStatus !== 'idle' && (
               <div className={`rounded-2xl p-4 sm:p-6 border ${
@@ -257,43 +257,6 @@ export default function App() {
 
             {/* Informations sur l'entreprise */}
             <CompanyInfo />
-
-            {/* Résumé mobile (pliable) */}
-            <div className="lg:hidden">
-              <BookingSummary
-                selectedPack={selectedPack}
-                selectedDate={selectedDate}
-                selectedTime={selectedTime}
-                address={addressData.adresse}
-                city={addressData.ville}
-                isCollapsed={summaryCollapsed}
-                onToggleCollapse={() => setSummaryCollapsed(!summaryCollapsed)}
-              />
-            </div>
-
-            {/* Bouton de confirmation - Mobile */}
-            <div className="lg:hidden pb-4">
-              <button
-                onClick={handleSubmit}
-                disabled={!isValid || isSubmitting || connectionStatus !== 'connected'}
-                className={`w-full py-4 px-6 rounded-xl font-semibold text-white transition-all duration-300 shadow-lg ${
-                  isValid && !isSubmitting && connectionStatus === 'connected'
-                    ? 'bg-gradient-to-r from-orange-400 to-pink-400 hover:from-orange-500 hover:to-pink-500 hover:shadow-xl'
-                    : 'bg-gray-300 cursor-not-allowed'
-                }`}
-              >
-                {isSubmitting ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Confirmation en cours...
-                  </div>
-                ) : connectionStatus !== 'connected' ? (
-                  'Connexion en cours...'
-                ) : (
-                  'Confirmer mon rendez-vous'
-                )}
-              </button>
-            </div>
           </div>
 
           {/* Barre latérale - Desktop */}
@@ -324,6 +287,56 @@ export default function App() {
                   </div>
                 ) : connectionStatus !== 'connected' ? (
                   'Connexion en cours...'
+                ) : (
+                  'Confirmer mon rendez-vous'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Interface mobile fixe en bas */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+          {/* Résumé mobile (pliable) */}
+          <div className={`transition-all duration-300 ${summaryCollapsed ? 'max-h-0 overflow-hidden' : 'max-h-96 overflow-y-auto'}`}>
+            <div className="p-4 border-b border-gray-100">
+              <BookingSummary
+                selectedPack={selectedPack}
+                selectedDate={selectedDate}
+                selectedTime={selectedTime}
+                address={addressData.adresse}
+                city={addressData.ville}
+                isCollapsed={false}
+              />
+            </div>
+          </div>
+
+          {/* Barre de contrôle */}
+          <div className="p-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSummaryCollapsed(!summaryCollapsed)}
+                className="flex-shrink-0 text-blue-600 font-medium text-sm"
+              >
+                {summaryCollapsed ? 'Voir le récap' : 'Masquer'}
+              </button>
+              
+              <button
+                onClick={handleSubmit}
+                disabled={!isValid || isSubmitting || connectionStatus !== 'connected'}
+                className={`flex-1 py-3 px-4 rounded-xl font-semibold text-white transition-all duration-300 shadow-lg ${
+                  isValid && !isSubmitting && connectionStatus === 'connected'
+                    ? 'bg-gradient-to-r from-orange-400 to-pink-400 hover:from-orange-500 hover:to-pink-500 hover:shadow-xl'
+                    : 'bg-gray-300 cursor-not-allowed'
+                }`}
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Confirmation...
+                  </div>
+                ) : connectionStatus !== 'connected' ? (
+                  'Connexion...'
                 ) : (
                   'Confirmer mon rendez-vous'
                 )}
