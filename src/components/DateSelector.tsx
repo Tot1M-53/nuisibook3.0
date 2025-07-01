@@ -1,6 +1,6 @@
 import React from 'react';
 import { Calendar, ChevronLeft, ChevronRight, Info, Clock } from 'lucide-react';
-import { format, addDays, startOfWeek, endOfWeek, isSameDay, isToday, isPast } from 'date-fns';
+import { format, addDays, isSameDay, isToday, isPast } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { getNextAvailability, formatAvailabilityDate, getCallbackTime, isDateAvailable } from '../utils/dateUtils';
 
@@ -12,18 +12,16 @@ interface DateSelectorProps {
 }
 
 export default function DateSelector({ selectedDate, onDateSelect, isFlexible, onFlexibleChange }: DateSelectorProps) {
-  const [currentWeek, setCurrentWeek] = React.useState(new Date());
+  const [currentStartDate, setCurrentStartDate] = React.useState(new Date());
   const [showTooltip, setShowTooltip] = React.useState(false);
   
   const nextAvailability = getNextAvailability();
   const callbackTime = getCallbackTime();
   
-  const startWeek = startOfWeek(currentWeek, { weekStartsOn: 1 });
-  const endWeek = endOfWeek(currentWeek, { weekStartsOn: 1 });
-  
+  // Générer 7 jours à partir de la date de début actuelle
   const weekDays = [];
-  for (let day = startWeek; day <= endWeek; day = addDays(day, 1)) {
-    weekDays.push(day);
+  for (let i = 0; i < 7; i++) {
+    weekDays.push(addDays(currentStartDate, i));
   }
   
   const isDisabled = (date: Date) => {
@@ -31,11 +29,17 @@ export default function DateSelector({ selectedDate, onDateSelect, isFlexible, o
   };
   
   const goToPreviousWeek = () => {
-    setCurrentWeek(addDays(currentWeek, -7));
+    setCurrentStartDate(addDays(currentStartDate, -7));
   };
   
   const goToNextWeek = () => {
-    setCurrentWeek(addDays(currentWeek, 7));
+    setCurrentStartDate(addDays(currentStartDate, 7));
+  };
+
+  // Obtenir le mois/année à afficher (basé sur la majorité des jours visibles)
+  const getDisplayMonth = () => {
+    const middleDay = weekDays[3]; // 4ème jour de la semaine affichée
+    return format(middleDay, 'MMMM yyyy', { locale: fr });
   };
 
   return (
@@ -171,7 +175,7 @@ export default function DateSelector({ selectedDate, onDateSelect, isFlexible, o
           </button>
           
           <h3 className="font-semibold text-gray-900 text-base sm:text-lg">
-            {format(currentWeek, 'MMMM yyyy', { locale: fr })}
+            {getDisplayMonth()}
           </h3>
           
           <button
@@ -186,11 +190,14 @@ export default function DateSelector({ selectedDate, onDateSelect, isFlexible, o
         <div className="overflow-x-auto">
           <div className="min-w-full">
             <div className="grid grid-cols-7 gap-1 sm:gap-2 min-w-[280px]">
-              {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map((day, index) => (
-                <div key={day} className="text-center text-xs sm:text-sm font-medium text-gray-500 mb-2 px-1">
-                  {day}
-                </div>
-              ))}
+              {weekDays.map((day, index) => {
+                const dayName = format(day, 'EEE', { locale: fr });
+                return (
+                  <div key={`${day.toISOString()}-header`} className="text-center text-xs sm:text-sm font-medium text-gray-500 mb-2 px-1">
+                    {dayName}
+                  </div>
+                );
+              })}
               
               {weekDays.map((day) => {
                 const disabled = isDisabled(day);
