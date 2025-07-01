@@ -44,6 +44,7 @@ export default function App() {
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState('');
+  const [isFlexible, setIsFlexible] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [summaryCollapsed, setSummaryCollapsed] = useState(true);
@@ -105,6 +106,14 @@ export default function App() {
     }
   }, [allFormData, hasInteracted]);
 
+  // Réinitialiser la date et l'heure si flexible
+  useEffect(() => {
+    if (isFlexible) {
+      setSelectedDate(null);
+      setSelectedTime('');
+    }
+  }, [isFlexible]);
+
   const handleInputChange = (field: string, value: string) => {
     try {
       if (['adresse', 'ville', 'code_postal'].includes(field)) {
@@ -145,7 +154,10 @@ export default function App() {
       });
       setHasInteracted(newHasInteracted);
 
-      if (!isFormValid(allFormData, selectedDate, selectedTime)) {
+      // Validation adaptée selon le mode flexible
+      const isValidForm = isFormValid(allFormData, isFlexible ? new Date() : selectedDate, isFlexible ? 'flexible' : selectedTime);
+      
+      if (!isValidForm) {
         setSubmitStatus('error');
         setSubmitMessage('Veuillez corriger les erreurs dans le formulaire');
         return;
@@ -169,8 +181,8 @@ export default function App() {
         adresse: allFormData.adresse,
         ville: allFormData.ville,
         code_postal: allFormData.code_postal,
-        date_rdv: format(selectedDate!, 'yyyy-MM-dd'),
-        heure_rdv: selectedTime,
+        date_rdv: isFlexible ? 'flexible' : format(selectedDate!, 'yyyy-MM-dd'),
+        heure_rdv: isFlexible ? 'flexible' : selectedTime,
         slug: urlSlug, // Utiliser le slug de l'URL
         nuisible: nuisible // Ajouter le type de nuisible
       };
@@ -182,7 +194,10 @@ export default function App() {
       console.log('Réservation créée avec succès:', result);
 
       setSubmitStatus('success');
-      setSubmitMessage('Rendez-vous confirmé avec succès !');
+      setSubmitMessage(isFlexible 
+        ? 'Demande enregistrée ! Le professionnel vous contactera pour fixer le rendez-vous.'
+        : 'Rendez-vous confirmé avec succès !'
+      );
       setIsRedirecting(true);
       setRedirectCountdown(2); // Réinitialiser le décompte
 
@@ -202,7 +217,8 @@ export default function App() {
     }
   };
 
-  const isValid = isFormValid(allFormData, selectedDate, selectedTime);
+  // Validation adaptée selon le mode flexible
+  const isValid = isFormValid(allFormData, isFlexible ? new Date() : selectedDate, isFlexible ? 'flexible' : selectedTime);
 
   // Affichage du loader de redirection
   if (isRedirecting) {
@@ -211,12 +227,17 @@ export default function App() {
         <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 text-center max-w-md mx-auto">
           <div className="flex items-center justify-center gap-3 mb-6">
             <CheckCircle className="w-8 h-8 text-green-600" />
-            <h2 className="text-xl font-semibold text-gray-900">Rendez-vous confirmé !</h2>
+            <h2 className="text-xl font-semibold text-gray-900">
+              {isFlexible ? 'Demande enregistrée !' : 'Rendez-vous confirmé !'}
+            </h2>
           </div>
           
           <div className="mb-6">
             <p className="text-gray-600 mb-4">
-              Votre demande a été enregistrée avec succès.
+              {isFlexible 
+                ? 'Le professionnel vous contactera pour fixer le rendez-vous.'
+                : 'Votre demande a été enregistrée avec succès.'
+              }
             </p>
             <div className="flex items-center justify-center gap-2 text-gray-600">
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -285,14 +306,17 @@ export default function App() {
             <DateSelector
               selectedDate={selectedDate}
               onDateSelect={setSelectedDate}
+              isFlexible={isFlexible}
+              onFlexibleChange={setIsFlexible}
             />
 
             {/* Sélection d'heure */}
-            {selectedDate && (
+            {(selectedDate || isFlexible) && (
               <TimeSelector
                 selectedTime={selectedTime}
                 selectedPack={selectedPack}
                 onTimeSelect={setSelectedTime}
+                isFlexible={isFlexible}
               />
             )}
 
@@ -312,6 +336,7 @@ export default function App() {
                 selectedTime={selectedTime}
                 address={addressData.adresse}
                 city={addressData.ville}
+                isFlexible={isFlexible}
               />
 
               {/* Bouton de confirmation - Desktop */}
@@ -331,6 +356,8 @@ export default function App() {
                   </div>
                 ) : connectionStatus !== 'connected' ? (
                   'Connexion en cours...'
+                ) : isFlexible ? (
+                  'Enregistrer ma demande'
                 ) : (
                   'Confirmer mon rendez-vous'
                 )}
@@ -351,6 +378,7 @@ export default function App() {
                 address={addressData.adresse}
                 city={addressData.ville}
                 isCollapsed={false}
+                isFlexible={isFlexible}
               />
             </div>
           </div>
@@ -381,6 +409,8 @@ export default function App() {
                   </div>
                 ) : connectionStatus !== 'connected' ? (
                   'Connexion...'
+                ) : isFlexible ? (
+                  'Enregistrer ma demande'
                 ) : (
                   'Confirmer mon rendez-vous'
                 )}

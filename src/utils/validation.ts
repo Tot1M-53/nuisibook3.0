@@ -52,6 +52,13 @@ export function validateForm(formData: any): FormErrors {
 export function isFormValid(formData: any, selectedDate: Date | null, selectedTime: string): boolean {
   const errors = validateForm(formData);
   const hasErrors = Object.keys(errors).length > 0;
+  
+  // Si le mode flexible est activé (selectedTime === 'flexible'), on ne vérifie pas la date/heure
+  if (selectedTime === 'flexible') {
+    return !hasErrors;
+  }
+  
+  // Sinon, on vérifie la date et l'heure
   const hasDateTime = selectedDate && selectedTime;
   
   return !hasErrors && !!hasDateTime;

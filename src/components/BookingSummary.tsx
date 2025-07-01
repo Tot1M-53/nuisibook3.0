@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bug, Shield, Zap, Calendar, MapPin, Brain } from 'lucide-react';
+import { Bug, Shield, Zap, Calendar, MapPin, Brain, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { PackInfo } from '../types/booking';
@@ -12,6 +12,7 @@ interface BookingSummaryProps {
   city: string;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  isFlexible?: boolean;
 }
 
 const getPackIcon = (slug: string) => {
@@ -34,7 +35,8 @@ export default function BookingSummary({
   address,
   city,
   isCollapsed = false,
-  onToggleCollapse
+  onToggleCollapse,
+  isFlexible = false
 }: BookingSummaryProps) {
   const content = (
     <div className="space-y-4">
@@ -58,18 +60,33 @@ export default function BookingSummary({
         </div>
       </div>
 
-      {selectedDate && selectedTime && (
+      {/* Affichage conditionnel selon le mode flexible */}
+      {isFlexible ? (
         <div className="flex items-center gap-3">
-          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center">
-            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-100 rounded-full flex items-center justify-center">
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Date et horaire</h3>
-            <p className="text-xs sm:text-sm text-gray-600">
-              {format(selectedDate, 'EEEE d MMMM yyyy', { locale: fr })}, {selectedTime}
+            <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Planning</h3>
+            <p className="text-xs sm:text-sm text-orange-600 font-medium">
+              À définir avec le professionnel
             </p>
           </div>
         </div>
+      ) : (
+        selectedDate && selectedTime && (
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center">
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Date et horaire</h3>
+              <p className="text-xs sm:text-sm text-gray-600">
+                {format(selectedDate, 'EEEE d MMMM yyyy', { locale: fr })}, {selectedTime}
+              </p>
+            </div>
+          </div>
+        )
       )}
 
       {address && city && (
