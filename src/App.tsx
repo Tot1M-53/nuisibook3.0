@@ -165,9 +165,9 @@ export default function App() {
       setSubmitStatus('success');
       setSubmitMessage(`Votre rendez-vous a été confirmé avec succès ! Référence: ${result.id.slice(0, 8)}`);
 
-      // Rediriger vers la page de validation après un court délai
+      // Rediriger vers la page de validation dans une nouvelle fenêtre/onglet
       setTimeout(() => {
-        window.location.href = 'https://www.nuisibook.com/validation-du-rdv';
+        window.open('https://www.nuisibook.com/validation-du-rdv', '_blank');
       }, 3000);
 
     } catch (error) {
