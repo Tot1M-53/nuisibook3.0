@@ -77,7 +77,7 @@ export function getCallbackTime(): string {
       // S'assurer qu'on est sur un jour ouvré
       while (!isWorkingDay(callbackTime)) {
         callbackTime = addDays(callbackTime, 1);
-        callbackTime = setHours(setMinutes(setSeconds(setMilliseconds(callbackTime, 0), 0), 0), 0), 10);
+        callbackTime = setHours(setMinutes(setSeconds(setMilliseconds(callbackTime, 0), 0), 0), 10);
       }
     }
   }
