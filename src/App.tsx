@@ -167,9 +167,9 @@ export default function App() {
       setSubmitMessage('Rendez-vous confirmé avec succès !');
       setIsRedirecting(true);
 
-      // Redirection quasi-instantanée avec loader de 1 seconde
+      // Redirection sur le même onglet après 1 seconde
       setTimeout(() => {
-        window.open('https://www.nuisibook.com/validation-du-rdv', '_blank');
+        window.location.href = 'https://www.nuisibook.com/validation-du-rdv';
       }, 1000);
 
     } catch (error) {
