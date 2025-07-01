@@ -193,28 +193,28 @@ export default function DateSelector({ selectedDate, onDateSelect, isFlexible, o
               ))}
               
               {weekDays.map((day) => {
-                const disabled = isDisabled(day) || isFlexible;
+                const disabled = isDisabled(day);
                 const selected = selectedDate && isSameDay(day, selectedDate);
                 const isAvailable = isDateAvailable(day, nextAvailability);
                 
                 return (
                   <div key={day.toISOString()} className="text-center px-1">
                     <button
-                      onClick={() => !disabled && onDateSelect(day)}
-                      disabled={disabled}
+                      onClick={() => !disabled && !isFlexible && onDateSelect(day)}
+                      disabled={disabled || isFlexible}
                       className={`w-full py-3 sm:py-4 px-1 text-lg sm:text-xl font-semibold rounded-xl transition-all duration-300 min-h-[48px] sm:min-h-[56px] flex items-center justify-center relative ${
-                        disabled
+                        disabled || isFlexible
                           ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                           : selected
-                          ? 'bg-gradient-to-r from-orange-400 to-pink-400 text-white shadow-lg'
+                          ? 'bg-gradient-to-r from-orange-400 to-pink-400 text-white shadow-lg transform scale-105'
                           : isAvailable
-                          ? 'bg-green-50 text-green-700 hover:bg-green-100 hover:shadow-md border border-green-200'
+                          ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white hover:from-green-500 hover:to-emerald-600 hover:shadow-lg hover:transform hover:scale-105 shadow-md'
                           : 'bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:shadow-md'
                       }`}
                     >
                       {format(day, 'd')}
                       {isAvailable && !disabled && !isFlexible && (
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"></div>
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full shadow-sm"></div>
                       )}
                     </button>
                   </div>
@@ -222,16 +222,6 @@ export default function DateSelector({ selectedDate, onDateSelect, isFlexible, o
               })}
             </div>
           </div>
-        </div>
-
-        <div className="mt-4 space-y-2">
-          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span>Créneaux disponibles (à partir du {format(nextAvailability, 'd MMMM', { locale: fr })})</span>
-          </div>
-          <p className="text-xs sm:text-sm text-gray-500">
-            Les week-ends et jours fériés sont exclus
-          </p>
         </div>
       </div>
     </div>
