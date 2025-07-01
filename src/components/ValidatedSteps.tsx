@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { PackInfo } from '../types/booking';
+import DiagnosticButton from './DiagnosticButton';
+import { useUrlParams } from '../hooks/useUrlParams';
 
 interface ValidatedStepsProps {
   selectedPack: PackInfo;
@@ -8,6 +10,8 @@ interface ValidatedStepsProps {
 
 export default function ValidatedSteps({ selectedPack }: ValidatedStepsProps) {
   const [showDetails, setShowDetails] = useState(false);
+  const { getParam } = useUrlParams();
+  const urlSlug = getParam('slug') || '';
 
   return (
     <div className="space-y-3 sm:space-y-4">
@@ -76,9 +80,7 @@ export default function ValidatedSteps({ selectedPack }: ValidatedStepsProps) {
             <p className="text-gray-600 mb-2 text-sm sm:text-base leading-relaxed">
               Vous avez envoyé le détail de votre problème
             </p>
-            <button className="text-blue-600 font-medium hover:text-blue-700 transition-colors text-sm sm:text-base">
-              voir le résultat
-            </button>
+            <DiagnosticButton slug={urlSlug} />
           </div>
         </div>
       </div>
