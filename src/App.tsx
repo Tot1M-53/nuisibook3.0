@@ -48,6 +48,7 @@ export default function App() {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [submitMessage, setSubmitMessage] = useState('');
   const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'error'>('checking');
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const allFormData = { ...formData, ...addressData };
 
@@ -163,12 +164,13 @@ export default function App() {
       console.log('Réservation créée avec succès:', result);
 
       setSubmitStatus('success');
-      setSubmitMessage(`Votre rendez-vous a été confirmé avec succès ! Référence: ${result.id.slice(0, 8)}`);
+      setSubmitMessage('Rendez-vous confirmé avec succès !');
+      setIsRedirecting(true);
 
-      // Rediriger vers la page de validation dans une nouvelle fenêtre/onglet
+      // Redirection quasi-instantanée avec loader de 1 seconde
       setTimeout(() => {
         window.open('https://www.nuisibook.com/validation-du-rdv', '_blank');
-      }, 3000);
+      }, 1000);
 
     } catch (error) {
       console.error('Erreur lors de la soumission de la réservation:', error);
@@ -187,6 +189,24 @@ export default function App() {
   };
 
   const isValid = isFormValid(allFormData, selectedDate, selectedTime);
+
+  // Affichage du loader de redirection
+  if (isRedirecting) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 text-center max-w-md mx-auto">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <CheckCircle className="w-8 h-8 text-green-600" />
+            <h2 className="text-xl font-semibold text-gray-900">Rendez-vous confirmé !</h2>
+          </div>
+          <div className="flex items-center justify-center gap-2 text-gray-600">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <p>Redirection en cours...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
