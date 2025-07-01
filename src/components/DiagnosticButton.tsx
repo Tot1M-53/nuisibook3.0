@@ -59,63 +59,88 @@ export default function DiagnosticButton({ slug }: DiagnosticButtonProps) {
     return 'Voir le résultat de mon diagnostic';
   };
 
-  // Parser le contenu du diagnostic pour l'affichage structuré
-  const parseContent = (content: string) => {
-    const lines = content.split('\n').filter(line => line.trim());
+  // Nettoyer et structurer le contenu HTML
+  const cleanAndStructureContent = (htmlContent: string) => {
+    // Créer un élément temporaire pour parser le HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    
+    // Extraire le contenu structuré
     const sections: { type: string; content: string; icon?: React.ReactNode }[] = [];
     
-    lines.forEach(line => {
-      const trimmed = line.trim();
-      
-      if (trimmed.startsWith('Traitement mécanique :')) {
-        sections.push({
-          type: 'treatment',
-          content: trimmed.replace('Traitement mécanique :', '').trim(),
-          icon: <CheckCircle className="w-5 h-5 text-green-600" />
-        });
-      } else if (trimmed.startsWith('Traitement chimique :')) {
-        sections.push({
-          type: 'treatment',
-          content: trimmed.replace('Traitement chimique :', '').trim(),
-          icon: <CheckCircle className="w-5 h-5 text-blue-600" />
-        });
-      } else if (trimmed.startsWith('Traitement préventif :')) {
-        sections.push({
-          type: 'treatment',
-          content: trimmed.replace('Traitement préventif :', '').trim(),
-          icon: <CheckCircle className="w-5 h-5 text-purple-600" />
-        });
-      } else if (trimmed.includes('Comment se passe une intervention ?')) {
+    // Chercher les éléments spécifiques
+    const h4Elements = tempDiv.querySelectorAll('h4');
+    const ulElements = tempDiv.querySelectorAll('ul');
+    const divElements = tempDiv.querySelectorAll('div[data-block="conseilx"], div[data-block="conseilfy"]');
+    
+    h4Elements.forEach((h4) => {
+      const text = h4.textContent || '';
+      if (text.includes('En attendant l\'intervention d\'un expert')) {
         sections.push({
           type: 'section-title',
-          content: 'Comment se passe une intervention ?',
+          content: 'En attendant l\'intervention d\'un expert',
           icon: <User className="w-5 h-5 text-orange-600" />
-        });
-      } else if (trimmed.startsWith('💡') || trimmed.includes('Conseil :')) {
-        sections.push({
-          type: 'advice',
-          content: trimmed.replace('💡', '').replace('Conseil :', '').trim(),
-          icon: <Lightbulb className="w-5 h-5 text-yellow-600" />
-        });
-      } else if (trimmed.startsWith('⚠️') || trimmed.includes('diagnostic proposé par Nuisibook')) {
-        sections.push({
-          type: 'warning',
-          content: trimmed.replace('⚠️', '').trim(),
-          icon: <AlertTriangle className="w-5 h-5 text-amber-600" />
-        });
-      } else if (trimmed.startsWith('🔍') || trimmed.includes('En attendant l\'intervention')) {
-        sections.push({
-          type: 'info',
-          content: trimmed.replace('🔍', '').trim(),
-          icon: <CheckCircle className="w-5 h-5 text-indigo-600" />
-        });
-      } else if (trimmed.length > 0 && !trimmed.startsWith('—')) {
-        sections.push({
-          type: 'text',
-          content: trimmed
         });
       }
     });
+    
+    // Traiter les listes
+    ulElements.forEach((ul) => {
+      const listItems = ul.querySelectorAll('li');
+      listItems.forEach((li) => {
+        const text = li.textContent || '';
+        if (text.trim()) {
+          sections.push({
+            type: 'info',
+            content: text.trim(),
+            icon: <CheckCircle className="w-5 h-5 text-indigo-600" />
+          });
+        }
+      });
+    });
+    
+    // Traiter les conseils
+    divElements.forEach((div) => {
+      const text = div.textContent || '';
+      if (text.includes('Conseil d\'expert')) {
+        const content = text.replace('Conseil d\'expert', '').trim();
+        sections.push({
+          type: 'advice',
+          content: content,
+          icon: <Lightbulb className="w-5 h-5 text-yellow-600" />
+        });
+      }
+    });
+    
+    // Si aucune structure spécifique n'est trouvée, afficher le contenu brut nettoyé
+    if (sections.length === 0) {
+      const cleanText = tempDiv.textContent || htmlContent;
+      const lines = cleanText.split('\n').filter(line => line.trim());
+      
+      lines.forEach(line => {
+        const trimmed = line.trim();
+        if (trimmed.length > 0) {
+          if (trimmed.includes('Conseil') || trimmed.includes('conseil')) {
+            sections.push({
+              type: 'advice',
+              content: trimmed,
+              icon: <Lightbulb className="w-5 h-5 text-yellow-600" />
+            });
+          } else if (trimmed.includes('En attendant')) {
+            sections.push({
+              type: 'info',
+              content: trimmed,
+              icon: <CheckCircle className="w-5 h-5 text-indigo-600" />
+            });
+          } else {
+            sections.push({
+              type: 'text',
+              content: trimmed
+            });
+          }
+        }
+      });
+    }
     
     return sections;
   };
@@ -172,74 +197,16 @@ export default function DiagnosticButton({ slug }: DiagnosticButtonProps) {
             {/* Content */}
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
               <div className="space-y-6">
-                {parseContent(content).map((section, index) => {
-                  if (section.type === 'treatment') {
-                    return (
-                      <div key={index} className="flex items-start gap-4 p-4 bg-green-50 rounded-xl border border-green-200">
-                        {section.icon}
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-green-800 mb-1">Traitement recommandé</h4>
-                          <p className="text-green-700 text-sm leading-relaxed">{section.content}</p>
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  if (section.type === 'section-title') {
-                    return (
-                      <div key={index} className="flex items-center gap-3 mt-8 mb-4">
-                        {section.icon}
-                        <h3 className="text-lg font-semibold text-gray-900">{section.content}</h3>
-                      </div>
-                    );
-                  }
-
-                  if (section.type === 'advice') {
-                    return (
-                      <div key={index} className="flex items-start gap-4 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
-                        {section.icon}
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-yellow-800 mb-1">Conseil d'expert</h4>
-                          <p className="text-yellow-700 text-sm leading-relaxed">{section.content}</p>
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  if (section.type === 'warning') {
-                    return (
-                      <div key={index} className="flex items-start gap-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
-                        {section.icon}
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-amber-800 mb-1">Information importante</h4>
-                          <p className="text-amber-700 text-sm leading-relaxed">{section.content}</p>
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  if (section.type === 'info') {
-                    return (
-                      <div key={index} className="flex items-start gap-4 p-4 bg-indigo-50 rounded-xl border border-indigo-200">
-                        {section.icon}
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-indigo-800 mb-1">En attendant l'intervention</h4>
-                          <p className="text-indigo-700 text-sm leading-relaxed">{section.content}</p>
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  if (section.type === 'text') {
-                    return (
-                      <div key={index} className="text-gray-700 text-sm leading-relaxed">
-                        {section.content}
-                      </div>
-                    );
-                  }
-
-                  return null;
-                })}
+                {/* Affichage du contenu HTML rendu */}
+                <div 
+                  className="prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: content }}
+                  style={{
+                    fontSize: '14px',
+                    lineHeight: '1.6',
+                    color: '#374151'
+                  }}
+                />
               </div>
             </div>
 
