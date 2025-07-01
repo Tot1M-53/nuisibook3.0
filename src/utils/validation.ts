@@ -58,8 +58,8 @@ export function isFormValid(formData: any, selectedDate: Date | null, selectedTi
     return !hasErrors;
   }
   
-  // Sinon, on vérifie la date et l'heure
-  const hasDateTime = selectedDate && selectedTime;
+  // Sinon, on vérifie la date et l'heure normalement
+  const hasDateTime = selectedDate && selectedTime && selectedTime !== '';
   
   return !hasErrors && !!hasDateTime;
 }

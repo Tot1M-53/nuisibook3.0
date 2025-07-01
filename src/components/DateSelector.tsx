@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Info, Clock } from 'lucide-react';
 import { format, addDays, startOfWeek, endOfWeek, isSameDay, isToday, isPast } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { getNextAvailability, formatAvailabilityDate, getCallbackTime, isDateAvailable } from '../utils/dateUtils';
@@ -51,51 +51,107 @@ export default function DateSelector({ selectedDate, onDateSelect, isFlexible, o
         </p>
       </div>
 
-      {/* Option "Je ne sais pas encore" */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
-        <div className="flex items-start gap-3">
-          <input
-            type="checkbox"
-            id="flexible-date"
-            checked={isFlexible}
-            onChange={(e) => onFlexibleChange(e.target.checked)}
-            className="mt-1 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-          />
-          <div className="flex-1">
-            <label htmlFor="flexible-date" className="font-medium text-gray-900 cursor-pointer">
-              Je ne sais pas encore, je souhaite en discuter avec le professionnel
-            </label>
-            <div className="flex items-center gap-2 mt-2">
-              <div className="relative">
+      {/* Option "Je ne sais pas encore" - Design amélioré */}
+      <div className="mb-6">
+        <div className={`p-5 rounded-xl border-2 transition-all duration-300 ${
+          isFlexible 
+            ? 'bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200 shadow-md' 
+            : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+        }`}>
+          <div className="flex items-start gap-4">
+            {/* Case à cocher personnalisée */}
+            <div className="relative flex-shrink-0 mt-1">
+              <input
+                type="checkbox"
+                id="flexible-date"
+                checked={isFlexible}
+                onChange={(e) => onFlexibleChange(e.target.checked)}
+                className="sr-only"
+              />
+              <label
+                htmlFor="flexible-date"
+                className={`flex items-center justify-center w-6 h-6 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
+                  isFlexible
+                    ? 'bg-gradient-to-r from-orange-400 to-amber-400 border-orange-400 shadow-lg'
+                    : 'bg-white border-gray-300 hover:border-orange-300 hover:bg-orange-50'
+                }`}
+              >
+                {isFlexible && (
+                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </label>
+            </div>
+            
+            <div className="flex-1">
+              <label htmlFor="flexible-date" className="block font-semibold text-gray-900 cursor-pointer mb-2">
+                Je ne sais pas encore, je souhaite en discuter avec le professionnel
+              </label>
+              
+              {/* Info-bulle améliorée */}
+              <div className="relative inline-block">
                 <button
                   onMouseEnter={() => setShowTooltip(true)}
                   onMouseLeave={() => setShowTooltip(false)}
-                  className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-300 ${
+                    isFlexible
+                      ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                      : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                  }`}
                 >
                   <Info className="w-4 h-4" />
-                  <span>Plus d'infos</span>
+                  <span className="font-medium">Comment ça marche ?</span>
                 </button>
                 
                 {showTooltip && (
-                  <div className="absolute bottom-full left-0 mb-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-lg z-10">
-                    <div className="mb-2">
-                      <strong>Le professionnel vous recontactera avant le {callbackTime}</strong>
+                  <div className="absolute bottom-full left-0 mb-3 w-96 p-4 bg-gray-900 text-white text-sm rounded-xl shadow-2xl z-20">
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <Clock className="w-5 h-5 text-orange-400 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <div className="font-semibold text-orange-300 mb-1">
+                            Rappel prévu avant le {callbackTime}
+                          </div>
+                          <p className="text-gray-300 leading-relaxed">
+                            Le professionnel vous contactera pendant les heures ouvrées (10h-18h) 
+                            pour fixer ensemble la date et l'heure qui vous conviennent le mieux.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="border-t border-gray-700 pt-3">
+                        <p className="text-gray-300 text-xs leading-relaxed">
+                          Il pourra également établir un devis personnalisé selon votre situation 
+                          et répondre à toutes vos questions avant l'intervention.
+                        </p>
+                      </div>
                     </div>
-                    <p>
-                      Il vous appellera pour fixer les derniers détails, confirmer l'intervention 
-                      et potentiellement établir un devis personnalisé selon votre situation.
-                    </p>
-                    <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                    
+                    {/* Flèche de l'info-bulle */}
+                    <div className="absolute top-full left-6 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                   </div>
                 )}
               </div>
+              
+              {/* Message quand l'option est sélectionnée */}
+              {isFlexible && (
+                <div className="mt-3 p-3 bg-orange-100 rounded-lg border border-orange-200">
+                  <div className="flex items-center gap-2 text-orange-800">
+                    <Clock className="w-4 h-4" />
+                    <span className="font-medium text-sm">
+                      Parfait ! Le professionnel vous contactera pour organiser le rendez-vous.
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Sélecteur de date (masqué si flexible) */}
-      <div className={`transition-all duration-300 ${isFlexible ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+      {/* Sélecteur de date */}
+      <div className={`transition-all duration-300 ${isFlexible ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
         <div className="flex items-center gap-3 mb-4 sm:mb-6">
           <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center">
             <Calendar className="w-3 h-3 sm:w-5 sm:h-5 text-blue-600" />
@@ -157,7 +213,7 @@ export default function DateSelector({ selectedDate, onDateSelect, isFlexible, o
                       }`}
                     >
                       {format(day, 'd')}
-                      {isAvailable && !disabled && (
+                      {isAvailable && !disabled && !isFlexible && (
                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"></div>
                       )}
                     </button>

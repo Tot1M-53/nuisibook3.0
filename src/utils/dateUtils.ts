@@ -1,4 +1,4 @@
-import { addDays, isWeekend, format, addHours } from 'date-fns';
+import { addDays, isWeekend, format, addHours, setHours, setMinutes, setSeconds, setMilliseconds } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { FRENCH_HOLIDAYS_2024, FRENCH_HOLIDAYS_2025 } from '../types/booking';
 
@@ -32,22 +32,54 @@ export function formatAvailabilityDate(date: Date): string {
   return format(date, 'EEEE d MMMM yyyy', { locale: fr });
 }
 
-// Fonction pour calculer l'heure de rappel (maintenant + 6 heures ouvrées)
+// Fonction pour calculer l'heure de rappel (maintenant + 6 heures ouvrées entre 10h-18h)
 export function getCallbackTime(): string {
   const now = new Date();
-  let callbackTime = addHours(now, 6);
+  let workingHoursToAdd = 6;
+  let callbackTime = new Date(now);
   
-  // Si on dépasse 18h, reporter au lendemain à 8h
-  if (callbackTime.getHours() >= 18) {
-    callbackTime = new Date(callbackTime);
-    callbackTime.setDate(callbackTime.getDate() + 1);
-    callbackTime.setHours(8, 0, 0, 0);
+  // Fonction pour vérifier si c'est un jour ouvré
+  const isWorkingDay = (date: Date): boolean => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const allHolidays = [...FRENCH_HOLIDAYS_2024, ...FRENCH_HOLIDAYS_2025];
+    return !isWeekend(date) && !allHolidays.includes(dateStr);
+  };
+  
+  // Si on n'est pas dans les heures ouvrées (10h-18h), aller au prochain créneau ouvré
+  if (callbackTime.getHours() < 10) {
+    callbackTime = setHours(setMinutes(setSeconds(setMilliseconds(callbackTime, 0), 0), 0), 10);
+  } else if (callbackTime.getHours() >= 18) {
+    // Aller au lendemain 10h
+    callbackTime = addDays(callbackTime, 1);
+    callbackTime = setHours(setMinutes(setSeconds(setMilliseconds(callbackTime, 0), 0), 0), 10);
   }
   
-  // Si c'est un weekend, reporter au lundi
-  while (isWeekend(callbackTime)) {
+  // S'assurer qu'on est sur un jour ouvré
+  while (!isWorkingDay(callbackTime)) {
     callbackTime = addDays(callbackTime, 1);
-    callbackTime.setHours(8, 0, 0, 0);
+    callbackTime = setHours(setMinutes(setSeconds(setMilliseconds(callbackTime, 0), 0), 0), 10);
+  }
+  
+  // Ajouter les 6 heures ouvrées
+  while (workingHoursToAdd > 0) {
+    // Si on peut ajouter des heures dans la journée actuelle (jusqu'à 18h)
+    const hoursUntilEndOfDay = 18 - callbackTime.getHours();
+    const hoursToAddToday = Math.min(workingHoursToAdd, hoursUntilEndOfDay);
+    
+    callbackTime = addHours(callbackTime, hoursToAddToday);
+    workingHoursToAdd -= hoursToAddToday;
+    
+    // Si il reste des heures à ajouter, passer au jour ouvré suivant
+    if (workingHoursToAdd > 0) {
+      callbackTime = addDays(callbackTime, 1);
+      callbackTime = setHours(setMinutes(setSeconds(setMilliseconds(callbackTime, 0), 0), 0), 10);
+      
+      // S'assurer qu'on est sur un jour ouvré
+      while (!isWorkingDay(callbackTime)) {
+        callbackTime = addDays(callbackTime, 1);
+        callbackTime = setHours(setMinutes(setSeconds(setMilliseconds(callbackTime, 0), 0), 0), 0), 10);
+      }
+    }
   }
   
   return format(callbackTime, 'EEEE d MMMM yyyy à HH:mm', { locale: fr });
