@@ -10,6 +10,7 @@ export interface BookingData {
   date_rdv: string;
   heure_rdv: string;
   slug: string;
+  nuisible: string;
 }
 
 export interface RdvBooking extends BookingData {
@@ -23,28 +24,33 @@ export interface PackInfo {
   slug: string;
   name: string;
   duration: string;
+  specificTreatment: string;
 }
 
 export const PACK_TYPES: Record<string, PackInfo> = {
-  'rongeur': {
-    slug: 'rongeur',
-    name: 'Pack traitement rongeur',
-    duration: '3h'
+  'rongeurs': {
+    slug: 'rongeurs',
+    name: 'Pack traitement rongeurs',
+    duration: '3h',
+    specificTreatment: 'pose d\'appât ou piège mécanique et/ou obstruction de points d\'entrée'
   },
   'blattes-cafards': {
     slug: 'blattes-cafards',
-    name: 'Pack traitement cafards',
-    duration: '3h'
+    name: 'Pack traitement blattes-cafards',
+    duration: '3h',
+    specificTreatment: 'appât, gel ou pulvérisation insecticide ou piège de contrôle'
   },
   'punaises-de-lit': {
     slug: 'punaises-de-lit',
     name: 'Pack traitement punaises de lit',
-    duration: '4h'
+    duration: '4h',
+    specificTreatment: 'traitement chimique par pulvérisation ou traitement thermique ou traitement mécanique'
   },
   'guepes-frelons': {
     slug: 'guepes-frelons',
     name: 'Pack traitement nid de guêpes',
-    duration: '2h'
+    duration: '2h',
+    specificTreatment: 'poudrage insecticide ou pulvérisation du nid'
   }
 };
 

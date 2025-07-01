@@ -19,10 +19,13 @@ import ConnectionStatus from './components/ConnectionStatus';
 export default function App() {
   const { getParam } = useUrlParams();
   
-  // Récupérer le type de pack depuis l'URL
-  const slug = getParam('slug') || 'rongeur';
+  // Récupérer les paramètres depuis l'URL
+  const nuisible = getParam('nuisible') || 'rongeurs';
+  const urlSlug = getParam('slug') || '';
   const showCompany = getParam('company') === 'true';
-  const selectedPack = PACK_TYPES[slug] || PACK_TYPES['rongeur'];
+  
+  // Utiliser le paramètre nuisible pour déterminer le pack
+  const selectedPack = PACK_TYPES[nuisible] || PACK_TYPES['rongeurs'];
 
   // État du formulaire
   const [formData, setFormData] = useState({
@@ -154,7 +157,8 @@ export default function App() {
         code_postal: allFormData.code_postal,
         date_rdv: format(selectedDate!, 'yyyy-MM-dd'),
         heure_rdv: selectedTime,
-        slug: selectedPack.slug
+        slug: urlSlug, // Utiliser le slug de l'URL
+        nuisible: nuisible // Ajouter le type de nuisible
       };
 
       console.log('Soumission des données de réservation:', bookingData);

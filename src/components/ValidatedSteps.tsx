@@ -6,42 +6,6 @@ interface ValidatedStepsProps {
   selectedPack: PackInfo;
 }
 
-// Contenu personnalisable pour chaque pack
-const PACK_DETAILS: Record<string, string[]> = {
-  'rongeur': [
-    'Inspection complète des lieux',
-    'Identification des points d\'entrée',
-    'Pose d\'appâts sécurisés',
-    'Traitement par gel professionnel',
-    'Conseils de prévention personnalisés',
-    'Garantie de résultat 3 mois'
-  ],
-  'blattes-cafards': [
-    'Diagnostic approfondi de l\'infestation',
-    'Traitement par gel insecticide longue durée',
-    'Pulvérisation dans les zones critiques',
-    'Pose de pièges moniteurs',
-    'Plan de prévention sur mesure',
-    'Suivi et garantie 6 mois'
-  ],
-  'punaises-de-lit': [
-    'Inspection minutieuse de la literie',
-    'Traitement thermique haute température',
-    'Pulvérisation insecticide résiduelle',
-    'Traitement des textiles et mobilier',
-    'Protocole de préparation détaillé',
-    'Garantie totale 12 mois'
-  ],
-  'guepes-frelons': [
-    'Localisation précise du nid',
-    'Équipement de protection intégral',
-    'Destruction complète du nid',
-    'Enlèvement sécurisé des résidus',
-    'Traitement préventif de la zone',
-    'Intervention d\'urgence possible'
-  ]
-};
-
 export default function ValidatedSteps({ selectedPack }: ValidatedStepsProps) {
   const [showDetails, setShowDetails] = useState(false);
 
@@ -72,14 +36,28 @@ export default function ValidatedSteps({ selectedPack }: ValidatedStepsProps) {
             
             {showDetails && (
               <div className="mt-4 p-3 sm:p-4 bg-blue-50 rounded-xl">
-                <h4 className="font-semibold text-gray-900 mb-3 text-sm sm:text-base">Ce qui est inclus dans votre intervention :</h4>
+                <h4 className="font-semibold text-gray-900 mb-3 text-sm sm:text-base">Ce qui est inclus :</h4>
                 <ul className="space-y-2">
-                  {PACK_DETAILS[selectedPack.slug]?.map((detail, index) => (
-                    <li key={index} className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
-                      <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span className="leading-relaxed">{detail}</span>
-                    </li>
-                  ))}
+                  <li className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
+                    <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span className="leading-relaxed">Validation du diagnostic et du devis</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
+                    <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span className="leading-relaxed">Confirmation de la méthode de traitement utilisée</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
+                    <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span className="leading-relaxed">{selectedPack.specificTreatment}</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
+                    <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span className="leading-relaxed">Rapport d'intervention et conseil pour éviter toute récidive</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
+                    <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span className="leading-relaxed">Suivi par des équipes Nuisibook à la suite de l'intervention</span>
+                  </li>
                 </ul>
               </div>
             )}

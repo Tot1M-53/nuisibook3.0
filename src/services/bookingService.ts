@@ -33,6 +33,7 @@ export async function createBooking(bookingData: BookingData): Promise<RdvBookin
       date_rdv: bookingData.date_rdv,
       heure_rdv: bookingData.heure_rdv,
       slug: bookingData.slug,
+      nuisible: bookingData.nuisible,
       statut: 'en_attente'
     };
 
