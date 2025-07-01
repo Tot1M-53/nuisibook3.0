@@ -44,6 +44,14 @@ export default function DateSelector({ selectedDate, onDateSelect, isFlexible, o
 
   return (
     <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
+      {/* Titre en haut du bloc */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center">
+          <Calendar className="w-3 h-3 sm:w-5 sm:h-5 text-blue-600" />
+        </div>
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Date de l'intervention souhaitée</h2>
+      </div>
+
       {/* Prochaine disponibilité */}
       <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
         <div className="flex items-center gap-2 mb-2">
@@ -156,15 +164,6 @@ export default function DateSelector({ selectedDate, onDateSelect, isFlexible, o
 
       {/* Sélecteur de date */}
       <div className={`transition-all duration-300 ${isFlexible ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
-        <div className="flex items-center gap-3 mb-4 sm:mb-6">
-          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center">
-            <Calendar className="w-3 h-3 sm:w-5 sm:h-5 text-blue-600" />
-          </div>
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
-            {isFlexible ? 'Date de votre session (optionnel)' : 'Date de votre session'}
-          </h2>
-        </div>
-
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <button
             onClick={goToPreviousWeek}
@@ -215,13 +214,13 @@ export default function DateSelector({ selectedDate, onDateSelect, isFlexible, o
                           : selected
                           ? 'bg-gradient-to-r from-orange-400 to-pink-400 text-white shadow-lg transform scale-105'
                           : isAvailable
-                          ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white hover:from-green-500 hover:to-emerald-600 hover:shadow-lg hover:transform hover:scale-105 shadow-md'
+                          ? 'bg-green-100 text-green-800 border-2 border-green-300 hover:bg-green-200 hover:border-green-400 hover:shadow-md hover:transform hover:scale-105'
                           : 'bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:shadow-md'
                       }`}
                     >
                       {format(day, 'd')}
                       {isAvailable && !disabled && !isFlexible && (
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full shadow-sm"></div>
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full shadow-sm border border-white"></div>
                       )}
                     </button>
                   </div>

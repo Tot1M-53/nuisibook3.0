@@ -34,7 +34,7 @@ export default function TimeSelector({ selectedTime, selectedPack, onTimeSelect,
                 ? 'bg-gradient-to-r from-orange-400 to-pink-400 text-white border-transparent'
                 : isFlexible
                 ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                : 'bg-gray-50 text-gray-700 border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                : 'bg-blue-50 text-blue-700 border-blue-200 hover:border-blue-300 hover:bg-blue-100 hover:shadow-sm'
             }`}
           >
             {time}
