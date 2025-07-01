@@ -208,7 +208,7 @@ export default function DateSelector({ selectedDate, onDateSelect, isFlexible, o
                     <button
                       onClick={() => !disabled && !isFlexible && onDateSelect(day)}
                       disabled={disabled || isFlexible}
-                      className={`w-full py-3 sm:py-4 px-1 text-lg sm:text-xl font-semibold rounded-xl transition-all duration-300 min-h-[48px] sm:min-h-[56px] flex items-center justify-center relative ${
+                      className={`w-full py-3 sm:py-4 px-1 text-lg sm:text-xl font-semibold rounded-xl transition-all duration-300 min-h-[48px] sm:min-h-[56px] flex items-center justify-center ${
                         disabled || isFlexible
                           ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                           : selected
@@ -219,9 +219,6 @@ export default function DateSelector({ selectedDate, onDateSelect, isFlexible, o
                       }`}
                     >
                       {format(day, 'd')}
-                      {isAvailable && !disabled && !isFlexible && (
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full shadow-sm border border-white"></div>
-                      )}
                     </button>
                   </div>
                 );
