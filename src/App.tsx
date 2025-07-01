@@ -52,6 +52,7 @@ export default function App() {
   const [submitMessage, setSubmitMessage] = useState('');
   const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'error'>('checking');
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [redirectCountdown, setRedirectCountdown] = useState(2);
 
   const allFormData = { ...formData, ...addressData };
 
@@ -72,6 +73,19 @@ export default function App() {
     
     checkConnection();
   }, []);
+
+  // Gérer le décompte de redirection
+  useEffect(() => {
+    if (isRedirecting && redirectCountdown > 0) {
+      const timer = setTimeout(() => {
+        setRedirectCountdown(redirectCountdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (isRedirecting && redirectCountdown === 0) {
+      // Ouvrir dans une nouvelle fenêtre
+      window.open('https://www.nuisibook.com/validation-du-rdv', '_blank');
+    }
+  }, [isRedirecting, redirectCountdown]);
 
   // Valider le formulaire lors des changements
   useEffect(() => {
@@ -170,11 +184,7 @@ export default function App() {
       setSubmitStatus('success');
       setSubmitMessage('Rendez-vous confirmé avec succès !');
       setIsRedirecting(true);
-
-      // Redirection sur le même onglet après 1 seconde
-      setTimeout(() => {
-        window.location.href = 'https://www.nuisibook.com/validation-du-rdv';
-      }, 1000);
+      setRedirectCountdown(2); // Réinitialiser le décompte
 
     } catch (error) {
       console.error('Erreur lors de la soumission de la réservation:', error);
@@ -199,13 +209,23 @@ export default function App() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 text-center max-w-md mx-auto">
-          <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="flex items-center justify-center gap-3 mb-6">
             <CheckCircle className="w-8 h-8 text-green-600" />
             <h2 className="text-xl font-semibold text-gray-900">Rendez-vous confirmé !</h2>
           </div>
-          <div className="flex items-center justify-center gap-2 text-gray-600">
-            <Loader2 className="w-5 h-5 animate-spin" />
-            <p>Redirection en cours...</p>
+          
+          <div className="mb-6">
+            <p className="text-gray-600 mb-4">
+              Votre demande a été enregistrée avec succès.
+            </p>
+            <div className="flex items-center justify-center gap-2 text-gray-600">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <p>Ouverture de la page de validation dans {redirectCountdown} seconde{redirectCountdown > 1 ? 's' : ''}...</p>
+            </div>
+          </div>
+
+          <div className="text-xs text-gray-500">
+            Une nouvelle fenêtre va s'ouvrir automatiquement
           </div>
         </div>
       </div>
