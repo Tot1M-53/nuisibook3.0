@@ -85,13 +85,14 @@ export function getCallbackTime(): string {
   return format(callbackTime, 'EEEE d MMMM yyyy à HH:mm', { locale: fr });
 }
 
-// Fonction pour vérifier si une date est disponible
+// Fonction pour vérifier si une date est disponible (doit être >= à la prochaine disponibilité)
 export function isDateAvailable(date: Date, minAvailability: Date): boolean {
   const dateStr = format(date, 'yyyy-MM-dd');
+  const minDateStr = format(minAvailability, 'yyyy-MM-dd');
   const allHolidays = [...FRENCH_HOLIDAYS_2024, ...FRENCH_HOLIDAYS_2025];
   
   return (
-    date >= minAvailability &&
+    dateStr >= minDateStr && // La date doit être >= à la date de disponibilité minimale
     !isWeekend(date) &&
     !allHolidays.includes(dateStr)
   );

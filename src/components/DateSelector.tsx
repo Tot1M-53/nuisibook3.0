@@ -214,13 +214,13 @@ export default function DateSelector({ selectedDate, onDateSelect, isFlexible, o
                           : selected
                           ? 'bg-gradient-to-r from-orange-400 to-pink-400 text-white shadow-lg transform scale-105'
                           : isAvailable
-                          ? 'bg-green-100 text-green-800 border-2 border-green-300 hover:bg-green-200 hover:border-green-400 hover:shadow-md hover:transform hover:scale-105'
-                          : 'bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:shadow-md'
+                          ? 'bg-blue-50 text-blue-700 border-2 border-blue-200 hover:border-blue-300 hover:bg-blue-100 hover:shadow-sm'
+                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-sm'
                       }`}
                     >
                       {format(day, 'd')}
                       {isAvailable && !disabled && !isFlexible && (
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full shadow-sm border border-white"></div>
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full shadow-sm border border-white"></div>
                       )}
                     </button>
                   </div>
