@@ -1,8 +1,9 @@
 import React from 'react';
-import { Bug, Shield, Zap, Calendar, MapPin, Brain, Clock } from 'lucide-react';
+import { Bug, Shield, Zap, Calendar, MapPin, Brain, Clock, Phone } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { PackInfo } from '../types/booking';
+import { useUrlParams } from '../hooks/useUrlParams';
 
 interface BookingSummaryProps {
   selectedPack: PackInfo;
@@ -38,6 +39,12 @@ export default function BookingSummary({
   onToggleCollapse,
   isFlexible = false
 }: BookingSummaryProps) {
+  const { getParam } = useUrlParams();
+  const urlSlug = getParam('slug') || '';
+  
+  // Vérifier si le diagnostic a été ignoré
+  const isIgnoredDiagnostic = urlSlug.startsWith('igno');
+
   const content = (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
@@ -50,15 +57,33 @@ export default function BookingSummary({
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center">
-          <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+      {/* Affichage conditionnel du diagnostic selon si ignoré ou non */}
+      {!isIgnoredDiagnostic && (
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center">
+            <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Résultat du diagnostic</h3>
+            <p className="text-xs sm:text-sm text-gray-600">Problème identifié</p>
+          </div>
         </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Résultat du diagnostic</h3>
-          <p className="text-xs sm:text-sm text-gray-600">Problème identifié</p>
+      )}
+
+      {/* Si diagnostic ignoré, afficher l'info de rappel */}
+      {isIgnoredDiagnostic && (
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-100 rounded-full flex items-center justify-center">
+            <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Diagnostic</h3>
+            <p className="text-xs sm:text-sm text-orange-600 font-medium">
+              À définir lors de l'appel
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Affichage conditionnel selon le mode flexible */}
       {isFlexible ? (
